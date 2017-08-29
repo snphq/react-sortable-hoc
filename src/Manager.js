@@ -4,6 +4,8 @@ import sortBy from 'lodash/sortBy';
 export default class Manager {
   refs = {};
 
+  selected = [];
+
   add(collection, ref) {
     if (!this.refs[collection]) {
       this.refs[collection] = [];
@@ -25,11 +27,14 @@ export default class Manager {
   }
 
   getActive() {
+    if (!this.active) return null;
+    const activeRef = this.refs[this.active.collection];
+    if (!activeRef) return null;
     return find(
-      this.refs[this.active.collection],
+      activeRef,
       // eslint-disable-next-line eqeqeq
       ({node}) => node.sortableInfo.index == this.active.index
-    );
+    ) || activeRef.slice(-1).pop();
   }
 
   getIndex(collection, ref) {
