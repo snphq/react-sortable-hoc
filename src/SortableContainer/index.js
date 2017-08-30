@@ -128,6 +128,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
       this.container = typeof getContainer === 'function'
         ? getContainer(this.getWrappedInstance())
         : findDOMNode(this);
+      this.container.style.position = 'relative';
       this.document = this.container.ownerDocument || document;
       this.scrollContainer = useWindowAsScrollContainer
         ? this.document.body
@@ -944,14 +945,10 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
     )};
       props.items=this.state.items;
       return (
-        <div style={{
-          position:'relative',
-          userSelect:'none'}}>
-            <WrappedComponent
-              ref={ref}
-              {...props}
-            />
-        </div>
+          <WrappedComponent
+            ref={ref}
+            {...props}
+          />
       );
     }
   };

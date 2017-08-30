@@ -40,7 +40,7 @@ const SortablePart = SortableElement(props =>
 );
 
 const SortableListParts = SortableContainer(({items, onSortItemsEnd}) =>
-    <div style={{height: '600px', overflow: 'auto'}}>
+    <div style={{height: '600px', overflow: 'auto', userSelect:'none'}}>
         {items.map((value, index) => (
             <SortablePart
                 key={index}
