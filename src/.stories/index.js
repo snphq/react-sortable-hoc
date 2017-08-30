@@ -167,7 +167,6 @@ class ListWrapper extends Component {
       const label = (items[0] || {label: 'Animal'}).label;
       const value = +(items.slice(-1)[0] || {value: 0}).value + 1;
       const item = getItems(1,59, label, value)[0];
-      // console.log(items.map(i=>i.value), isRemove ? 'remove: ' : 'add: ', isRemove ? items[0] : item)
       return {
         items: isRemove
           ? arrayMove(items, 0, -1)

@@ -32,9 +32,7 @@ export default class DragLayer {
       this.scrollContainer = list.container;
     }
     if (activeNode) {
-      const {
-        axis,
-      } = list.props;
+      const {axis} = list.props;
       const {node} = activeNode;
       const {index} = node.sortableInfo;
       this.startItemID = index;

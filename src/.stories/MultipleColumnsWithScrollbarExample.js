@@ -72,10 +72,6 @@ class ListWrapper extends React.Component {
   onSortStart = () => {
     const {onSortStart} = this.props;
     this.setState({isSorting: true});
-
-    // if (onSortStart) {
-    //   onSortStart(this.refs.component);
-    // }
   };
   onSortEnd = ({oldIndex, newIndex, newList}) => {
     const {onSortEnd} = this.props;
@@ -99,16 +95,10 @@ class ListWrapper extends React.Component {
     const {onSortSwap} = this.props;
     const {items} = this.state;
 
-    console.log(index);
-
     this.setState({
       items: arrayInsert(items, index, item),
       isSorting: true
     });
-
-    // if (onSortSwap) {
-    //   onSortSwap(this.refs.component);
-    // }
   };
 
   componentWillUnmount() {
