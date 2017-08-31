@@ -7,8 +7,6 @@ import {
 } from '../utils';
 import {closestRect, updateDistanceBetweenContainers} from './utils';
 
-let oldy = Infinity;
-
 export default class DragLayer {
   helper = null;
   lists = [];
@@ -230,13 +228,13 @@ export default class DragLayer {
     const helperCollision = this.currentList.props.helperCollision;
     if (helperCollision){
       const {top, bottom} = this.helper.getBoundingClientRect();
-      if (pageY > oldy){
+      if (pageY > this.oldY){
         pageY=bottom+helperCollision.top;
       }else{
         pageY=top+helperCollision.top;
       }
     }
-    oldy = e.pageY;
+    this.oldY = e.pageY;
     const closest = this.lists[closestRect(pageX, pageY, this.lists.map(l => l.container))];
     const {item} = this.currentList.manager.active;
     this.active = item;
