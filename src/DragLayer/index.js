@@ -10,6 +10,17 @@ import {closestRect, updateDistanceBetweenContainers} from './utils';
 export default class DragLayer {
   helper = null;
   lists = [];
+  selectedItems = [];
+  oldY = 0;
+
+  unselectAll(){
+    this.selectedItems.forEach(item=>item.unselect());
+    this.selectedItems.length = 0;
+  }
+
+  removeAllSelectedFromManagers(){
+    this.lists.forEach(list => list.manager.selected=[]);
+  }
 
   addRef(list) {
     this.lists.push(list);
@@ -95,6 +106,7 @@ export default class DragLayer {
     });
 
     this.helper = parent.appendChild(clonedNode);
+    this.helper.style.zIndex = '100';
     this.helper.style.position = 'fixed';
 
     this.helper.style.top = `${this.boundingClientRect.top - margin.top}px`;
@@ -269,7 +281,7 @@ export default class DragLayer {
   getScrollContainer(listContainer){
     let el = listContainer;
     while (el.parentNode){
-      if (el.style.overflow){
+      if (getComputedStyle(el).overflow === 'auto'){
         return el;
       }
       el = el.parentNode;

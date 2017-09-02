@@ -17,6 +17,8 @@ import {
 import {closestRect} from '../DragLayer/utils';
 import {arrayMove, arrayInsert} from '../index';
 
+var isDrag = false;
+
 // Export Higher Order Sortable Container Component
 export default function sortableContainer(WrappedComponent, config = {withRef: false}) {
   return class extends Component {
@@ -26,14 +28,16 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
       this.dragLayer.addRef(this);
       this.dragLayer.onDragEnd = props.onDragEnd;
       this.manager = new Manager();
+      this.manager.dragLayer = this.dragLayer;
       this.events = {
         start: this.handleStart,
         move: this.handleMove,
         end: this.handleEnd,
       };
       if (this.props.isMultiple){
+        this.manager.selectedClass = props.selectedClass;
         this.manager.helperClass = props.helperClass;
-        this.manager.isMultiple=true;
+        this.manager.isMultiple = true;
       }
 
       invariant(
@@ -187,7 +191,10 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
     };
 
     handleStart = e => {
-      this.dragLayer.startContainerID = this.props.id;
+      if (isDrag){
+        return;
+      }
+      isDrag = true;
       const p = getOffset(e);
       const {distance, shouldCancelStart} = this.props;
       const {items} = this.state;
@@ -264,6 +271,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
     };
 
     handleEnd = () => {
+      isDrag = false;
       const {distance} = this.props;
 
       this._touched = false;
@@ -281,6 +289,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
     };
 
     handlePress = e => {
+      this.dragLayer.startContainerID = this.props.id;
       let activeNode = null;
       if (this.dragLayer.helper) {
         if (this.manager.active) {
@@ -340,6 +349,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
     };
 
     startMultipleDrag=(activeNode)=>{
+      this.dragLayer.unselectAll();
       const index = activeNode.node.sortableInfo.index;
       if (this.manager.selected.indexOf(index)===-1){
         this.manager.selected.push(index);
@@ -354,6 +364,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
             this.dragLayer.dragableItems.push({
               listId:list.props.id,
               id:i,
+              item: list.props.items[i],
             });
           }else{
             items.push(list.props.items[i]);
@@ -375,6 +386,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         items: items,
       });
       this.manager.active.item = items[index];
+      this.dragLayer.removeAllSelectedFromManagers();
     }
 
     handleSortMove = e => {
@@ -898,10 +910,9 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
               left: 1 * speed.x * direction.x,
               top: 1 * speed.y * direction.y,
             };
+            this.dragLayer.updateDistanceBetweenContainers();
             this.dragLayer.scrollContainer.scrollTop += offset.top;
             this.dragLayer.scrollContainer.scrollLeft += offset.left;
-            // this.dragLayer.translate.x += offset.left;
-            // this.dragLayer.translate.y += offset.top;
             this.animateNodes();
           },
           5,
