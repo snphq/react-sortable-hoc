@@ -464,11 +464,13 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
           }
         }else{
           if (typeof onMultipleSortEnd === 'function') {
+            const prevIndex = this.index < this.newIndex ? this.newIndex : this.newIndex - 1;
             onMultipleSortEnd(
               {
                 newIndex: this.newIndex,
                 newListIndex: this.props.id,
                 items: this.dragLayer.dragableItems,
+                prevItem: prevIndex === -1 ? false : this.state.items[prevIndex],
               },
               e,
             );
