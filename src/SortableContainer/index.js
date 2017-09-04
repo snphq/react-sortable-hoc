@@ -300,6 +300,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         activeNode = this.dragLayer.startDrag(this.document.body, this, e);
         if (this.props.isMultiple) this.startMultipleDrag(activeNode);
         this.dragLayer.createHelper(this.document.body, this);
+        activeNode = this.manager.getActive();
       }
 
       if (activeNode) {
@@ -348,14 +349,17 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
       }
     };
 
-    startMultipleDrag=(activeNode)=>{
+    startMultipleDrag(activeNode){
       this.dragLayer.unselectAll();
       const index = activeNode.node.sortableInfo.index;
-      if (this.manager.selected.indexOf(index)===-1){
+      if (this.manager.selected.indexOf(index) === -1){
+        this.dragLayer.removeAllSelectedFromManagers();
         this.manager.selected.push(index);
       }
       const selectedItems = [];
       this.dragLayer.dragableItems=[];
+      this.index = this.getNewIndex(index);
+      this.manager.active.index = this.index;
       this.dragLayer.lists.forEach(list=>{
         const items=[];
         for (let i=0;i<list.props.items.length;i++){
@@ -379,14 +383,27 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         list.manager.selected = [];
       });
       const items = this.state.items.slice();
-      items[index]={
+      items[this.index]={
         selectedItems: selectedItems,
       };
       this.setState({
         items: items,
       });
-      this.manager.active.item = items[index];
+      this.manager.active.item = items[this.index];
       this.dragLayer.removeAllSelectedFromManagers();
+    }
+
+    getNewIndex(index){
+      const nodes = this.manager.getOrderedRefs();
+      let delta=0;
+      this.dragLayer.deltaY = 0;
+      this.manager.selected.forEach(item=>{
+        if (item<index){
+          delta++;
+          this.dragLayer.deltaY += nodes[item].node.offsetHeight;
+        }
+      })
+      return index - delta;
     }
 
     handleSortMove = e => {
@@ -449,6 +466,7 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
           items: arrayMove(this.state.items, this.index, -1),
         });
       }else {
+        isDrag = false;
         if (!this.props.isMultiple){
           if (typeof onSortEnd === 'function') {
             onSortEnd(
@@ -660,7 +678,8 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         top: this.dragLayer.offsetEdge.top -
           this.dragLayer.distanceBetweenContainers.y +
           this.dragLayer.translate.y +
-          deltaScroll.top,
+          deltaScroll.top +
+          this.dragLayer.deltaY,
       };
       const scrollDifference = {
         top: (window.scrollY - this.initialWindowScroll.top),
@@ -713,21 +732,6 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
         // We need this for calculating the animation in a grid setup
         if (nextNode && !nextNode.edgeOffset) {
           nextNode.edgeOffset = this.getEdgeOffset(nextNode.node);
-        }
-
-        // If the node is the one we're currently animating, skip it
-        if (index === this.index) {
-          if (hideSortableGhost) {
-            /*
-						 * With windowing libraries such as `react-virtualized`, the sortableGhost
-						 * node may change while scrolling down and then back up (or vice-versa),
-						 * so we need to update the reference to the new node just to be safe.
-						 */
-            this.sortableGhost = node;
-            node.style.visibility = 'hidden';
-            node.style.opacity = 0;
-          }
-          continue;
         }
 
         if (transitionDuration) {

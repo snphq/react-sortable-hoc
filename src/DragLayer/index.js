@@ -12,6 +12,7 @@ export default class DragLayer {
   lists = [];
   selectedItems = [];
   oldY = 0;
+  deltaY = 0;
 
   unselectAll(){
     this.selectedItems.forEach(item=>item.unselect());
@@ -86,7 +87,7 @@ export default class DragLayer {
 
   createHelper(parent, list){
     const {node, collection} = list.manager.getActive();
-    const {index} = node.sortableInfo;
+    const {index} = list;
     const fields = node.querySelectorAll('input, textarea, select');
     const clonedNode = node.cloneNode(true);
     const margin = getElementMargin(node);
