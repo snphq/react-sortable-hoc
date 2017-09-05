@@ -47,17 +47,18 @@ const SortableListParts = SortableContainer(({items, onSortItemsEnd}) =>
                 index={index}
                 item={value}
                 id={index}
-                onMultipleSortEnd={onSortItemsEnd}/>
+                onMultipleSortEnd={onSortItemsEnd}
+            />
         ))}
     </div>
 );
 
 const getParts = (countParts, countLessons)=> {
   const parts = [];
-  for (let i=0; i<countParts; i++){
+  for (let i = 0; i < countParts; i++){
     const lessons = [];
-    for (let j=0;j<countLessons;j++){
-      lessons.push('Lesson-'+(i+1)+'-'+(j+1));
+    for (let j = 0; j < countLessons; j++){
+      lessons.push('Lesson-' + (i + 1) + '-' + (j + 1));
     }
     parts.push({
       name: 'Part',
@@ -82,10 +83,10 @@ export default class SortableComponent extends Component {
   onSortItemsEnd = ({newListIndex, newIndex, items}) => {
     const parts = this.state.parts.slice();
     const itemsValue = [];
-    items.forEach(item=>{
+    items.forEach(item => {
       itemsValue.push(parts[item.listId].items[item.id]);
     });
-    for (let i=items.length-1;i>=0;i--){
+    for (let i=items.length - 1; i >= 0; i--) {
       const item = items[i];
       parts[item.listId].items.splice(item.id,1);
     }
@@ -95,10 +96,10 @@ export default class SortableComponent extends Component {
     });
   }
   render() {
-    const parts = this.state.parts.map((value, index)=>{
+    const parts = this.state.parts.map((value, index) => {
       return {
         name: value.name,
-        items: value.items.map((value, ind)=>{
+        items: value.items.map((value, ind) => {
           return {
             value,
             ind:(index+1)+'.'+(ind+1),
@@ -112,7 +113,8 @@ export default class SortableComponent extends Component {
             onSortEnd={this.onSortEnd}
             onSortItemsEnd={this.onSortItemsEnd}
             helperClass={style.dragged}
-            distance={3}/>
+            distance={3}
+        />
     </div>;
   }
 }

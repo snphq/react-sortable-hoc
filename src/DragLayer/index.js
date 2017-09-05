@@ -14,13 +14,13 @@ export default class DragLayer {
   oldY = 0;
   deltaY = 0;
 
-  unselectAll(){
-    this.selectedItems.forEach(item=>item.unselect());
+  unselectAll() {
+    this.selectedItems.forEach(item => item.unselect());
     this.selectedItems.length = 0;
   }
 
-  removeAllSelectedFromManagers(){
-    this.lists.forEach(list => list.manager.selected=[]);
+  removeAllSelectedFromManagers() {
+    this.lists.forEach(list => list.manager.selected = []);
   }
 
   addRef(list) {
@@ -85,7 +85,7 @@ export default class DragLayer {
     return false;
   }
 
-  createHelper(parent, list){
+  createHelper(parent, list) {
     const {node, collection} = list.manager.getActive();
     const {index} = list;
     const fields = node.querySelectorAll('input, textarea, select');
@@ -241,9 +241,9 @@ export default class DragLayer {
     const helperCollision = this.currentList.props.helperCollision;
     if (helperCollision){
       const {top, bottom} = this.helper.getBoundingClientRect();
-      if (pageY > this.oldY){
+      if (pageY > this.oldY) {
         pageY=bottom+helperCollision.top;
-      }else{
+      } else {
         pageY=top+helperCollision.top;
       }
     }
@@ -271,7 +271,7 @@ export default class DragLayer {
     }
   }
 
-  updateDistanceBetweenContainers(){
+  updateDistanceBetweenContainers() {
     const containerCoordinates = this.currentList.container.getBoundingClientRect();
     this.distanceBetweenContainers = {
       x: containerCoordinates.left - this.containerBoundingRect.left,
@@ -279,7 +279,7 @@ export default class DragLayer {
     };
   }
 
-  getScrollContainer(listContainer){
+  getScrollContainer(listContainer) {
     let el = listContainer;
     while (el.parentNode){
       if (getComputedStyle(el).overflow === 'auto'){

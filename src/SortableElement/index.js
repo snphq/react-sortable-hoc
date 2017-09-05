@@ -89,14 +89,14 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
       const manager = this.context.manager;
       const dragLayer = manager.dragLayer;
       const selectedItemsOnDragLayer = dragLayer.selectedItems;
-      if (!(e.metaKey || e.ctrlKey)){
+      if (!(e.metaKey || e.ctrlKey)) {
         dragLayer.unselectAll();
         dragLayer.removeAllSelectedFromManagers();
       }
-      if (!this.state.selected){
+      if (!this.state.selected) {
         manager.selected.push(this.node.sortableInfo.index);
         selectedItemsOnDragLayer.push(this);
-      }else{
+      } else {
         this.removeSelectedFromManager();
         this.removeSelectedFromDraglayer();
       }
@@ -123,32 +123,39 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
       const ref = config.withRef ? 'wrappedInstance' : null;
       const props = {...omit(this.props, 'collection', 'disabled', 'index')};
       const {selectedItems} = this.props;
-      if (selectedItems){
+      if (selectedItems) {
         return (
           <div>
-            {selectedItems.map((value, index)=>
+            {selectedItems.map((value, index) =>
               <div
                 key={index}
-                className={this.helperClass}>
+                className={this.helperClass}
+              >
                   <WrappedComponent
                     key={index}
                     {...value}
                     {...props}
                   />
-              </div>)}
+              </div>
+            )}
           </div>
         );
       }
-      const component = <WrappedComponent
-          ref={ref}
-          {...props}
-      />;
-      if (this.context.manager.isMultiple){
-        return <div
-          onClick={this.onSelect}
-          className={this.state.selected ? this.selectedClass : ''}>
-            {component}
-        </div>;
+      const component = (
+        <WrappedComponent
+            ref={ref}
+            {...props}
+        />
+      );
+      if (this.context.manager.isMultiple) {
+        return (
+          <div
+            onClick={this.onSelect}
+            className={this.state.selected ? this.selectedClass : ''}
+          >
+              {component}
+          </div>
+        );
       }
       return component;
     }
