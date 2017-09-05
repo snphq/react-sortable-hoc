@@ -351,52 +351,59 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
 
     startMultipleDrag(activeNode){
       this.dragLayer.unselectAll();
-      const index = activeNode.node.sortableInfo.index;
-      if (this.manager.selected.indexOf(index) === -1){
-        this.dragLayer.removeAllSelectedFromManagers();
-        this.manager.selected.push(index);
-      }
+      const index = this.index = activeNode.node.sortableInfo.index;
       const selectedItems = [];
       this.dragLayer.dragableItems=[];
-      this.index = this.getNewIndex(index);
-      this.manager.active.index = this.index;
-      this.dragLayer.lists.forEach(list=>{
-        const items=[];
-        for (let i=0;i<list.props.items.length;i++){
-          if (list.manager.selected.indexOf(i)!==-1){
-            selectedItems.push(list.props.items[i]);
-            this.dragLayer.dragableItems.push({
-              listId:list.props.id,
-              id:i,
-              item: list.props.items[i],
-            });
-          }else{
-            items.push(list.props.items[i]);
+      this.dragLayer.deltaY = 0;
+      if (this.manager.selected.indexOf(index) === -1){
+        this.dragLayer.removeAllSelectedFromManagers();
+        const item = this.state.items[index];
+        selectedItems.push(item);
+        this.dragLayer.dragableItems[0]={
+          listId:this.props.id,
+          id:index,
+          item,
+        };
+      }else{
+        this.index = this.getNewIndex(index);
+        this.manager.active.index = this.index;
+        this.dragLayer.lists.forEach(list=>{
+          const items=[];
+          for (let i=0;i<list.props.items.length;i++){
+            if (list.manager.selected.indexOf(i)!==-1){
+              const item = list.props.items[i];
+              selectedItems.push(item);
+              this.dragLayer.dragableItems.push({
+                listId:list.props.id,
+                id:i,
+                item,
+              });
+            }else{
+              items.push(list.props.items[i]);
+            }
+            if (list===this && i===index){
+              items.push(list.props.items[i]);
+            }
           }
-          if (list===this && i===activeNode.node.sortableInfo.index){
-            items.push(list.props.items[i]);
-          }
-        }
-        list.setState({
-          items:items,
+          list.setState({
+            items:items,
+          });
+          list.manager.selected = [];
         });
-        list.manager.selected = [];
-      });
+      }
       const items = this.state.items.slice();
       items[this.index]={
-        selectedItems: selectedItems,
+        selectedItems,
       };
       this.setState({
-        items: items,
+        items,
       });
       this.manager.active.item = items[this.index];
-      this.dragLayer.removeAllSelectedFromManagers();
     }
 
     getNewIndex(index){
       const nodes = this.manager.getOrderedRefs();
       let delta=0;
-      this.dragLayer.deltaY = 0;
       this.manager.selected.forEach(item=>{
         if (item<index){
           delta++;
