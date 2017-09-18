@@ -5,13 +5,23 @@ import {
   getElementMargin,
   clamp,
 } from '../utils';
-import {closestRect, updateDistanceBetweenContainers} from './utils';
-
-let oldy = Infinity;
+import { closestRect, updateDistanceBetweenContainers } from './utils';
 
 export default class DragLayer {
   helper = null;
   lists = [];
+  selectedItems = [];
+  oldY = 0;
+  deltaY = 0;
+
+  unselectAll() {
+    this.selectedItems.forEach(item => item.unselect());
+    this.selectedItems.length = 0;
+  }
+
+  removeAllSelectedFromManagers() {
+    this.lists.forEach(list => list.manager.selected = []);
+  }
 
   addRef(list) {
     this.lists.push(list);
@@ -28,13 +38,13 @@ export default class DragLayer {
     const offset = getOffset(e);
     const activeNode = list.manager.getActive();
     this.scrollContainer = this.getScrollContainer(activeNode.node);
-    if (!this.scrollContainer){
+    if (!this.scrollContainer) {
       this.scrollContainer = list.container;
     }
     if (activeNode) {
-      const {axis} = list.props;
-      const {node} = activeNode;
-      const {index} = node.sortableInfo;
+      const { axis } = list.props;
+      const { node } = activeNode;
+      const { index } = node.sortableInfo;
       this.startItemID = index;
       const margin = getElementMargin(node);
       const containerBoundingRect = list.container.getBoundingClientRect();
@@ -75,13 +85,13 @@ export default class DragLayer {
     return false;
   }
 
-  createHelper(parent, list){
-    const {node, collection} = list.manager.getActive();
-    const {index} = node.sortableInfo;
+  createHelper(parent, list) {
+    const { node, collection } = list.manager.getActive();
+    const { index } = list;
     const fields = node.querySelectorAll('input, textarea, select');
     const clonedNode = node.cloneNode(true);
     const margin = getElementMargin(node);
-    const dimensions = list.props.getHelperDimensions({index, node, collection});
+    const dimensions = list.props.getHelperDimensions({ index, node, collection });
     this.width = dimensions.width;
     this.height = dimensions.height;
     const clonedFields = [
@@ -97,6 +107,7 @@ export default class DragLayer {
     });
 
     this.helper = parent.appendChild(clonedNode);
+    this.helper.style.zIndex = '100';
     this.helper.style.position = 'fixed';
 
     this.helper.style.top = `${this.boundingClientRect.top - margin.top}px`;
@@ -172,14 +183,14 @@ export default class DragLayer {
   };
 
   updatePosition(e) {
-    const {lockAxis, lockToContainerEdges} = this.currentList.props;
+    const { lockAxis, lockToContainerEdges } = this.currentList.props;
     const offset = getOffset(e);
     const translate = {
       x: offset.x - this.initialOffset.x,
       y: offset.y - this.initialOffset.y,
     };
     // Adjust for window scroll
-    if (this.currentList.initialWindowScroll){
+    if (this.currentList.initialWindowScroll) {
       translate.y -= (window.scrollY - this.currentList.initialWindowScroll.top);
       translate.x -= (window.scrollX - this.currentList.initialWindowScroll.left);
     }
@@ -225,20 +236,20 @@ export default class DragLayer {
   }
 
   updateTargetContainer(e) {
-    const {pageX}  = this.delta;
-    let {pageY} = this.delta;
+    const { pageX } = this.delta;
+    let { pageY } = this.delta;
     const helperCollision = this.currentList.props.helperCollision;
-    if (helperCollision){
-      const {top, bottom} = this.helper.getBoundingClientRect();
-      if (pageY > oldy){
-        pageY=bottom+helperCollision.top;
-      }else{
-        pageY=top+helperCollision.top;
+    if (helperCollision) {
+      const { top, bottom } = this.helper.getBoundingClientRect();
+      if (pageY > this.oldY) {
+        pageY = bottom + helperCollision.top;
+      } else {
+        pageY = top + helperCollision.top;
       }
     }
-    oldy = e.pageY;
+    this.oldY = e.pageY;
     const closest = this.lists[closestRect(pageX, pageY, this.lists.map(l => l.container))];
-    const {item} = this.currentList.manager.active;
+    const { item } = this.currentList.manager.active;
     this.active = item;
     if (closest !== this.currentList) {
       this.distanceBetweenContainers = updateDistanceBetweenContainers(
@@ -250,7 +261,7 @@ export default class DragLayer {
           height: this.height,
         },
       );
-      this.currentList.handleSortEnd(e, closest, {pageX, pageY});
+      this.currentList.handleSortEnd(e, closest, { pageX, pageY });
       this.currentList = closest;
       this.currentList.manager.active = {
         ...this.currentList.getClosestNode(e),
@@ -260,7 +271,7 @@ export default class DragLayer {
     }
   }
 
-  updateDistanceBetweenContainers(){
+  updateDistanceBetweenContainers() {
     const containerCoordinates = this.currentList.container.getBoundingClientRect();
     this.distanceBetweenContainers = {
       x: containerCoordinates.left - this.containerBoundingRect.left,
@@ -268,10 +279,10 @@ export default class DragLayer {
     };
   }
 
-  getScrollContainer(listContainer){
+  getScrollContainer(listContainer) {
     let el = listContainer;
-    while (el.parentNode){
-      if (el.style.overflow){
+    while (el.parentNode) {
+      if (getComputedStyle(el).overflow === 'auto') {
         return el;
       }
       el = el.parentNode;

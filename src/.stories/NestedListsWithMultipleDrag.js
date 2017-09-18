@@ -4,13 +4,12 @@ import style from './NestedListsWithMultipleDrag.scss';
 
 const dragLayer = new DragLayer();
 
-const SortableItem = SortableElement((props)=>{
-  const value = props.item;
-  return <div onClick={props.onSelect} className={props.className}>
-            <span style={{display: 'inline-block', width: '50px'}}>{value.ind}</span>
-            {value.value}
-        </div>;
-});
+const SortableItem = SortableElement(props =>
+  <div>
+    <span style={{display: 'inline-block', width: '50px'}}>{props.ind}</span>
+    {props.value}
+  </div>
+);
 
 const SortableListItems = SortableContainer(({items}) =>
     <div>
@@ -18,7 +17,7 @@ const SortableListItems = SortableContainer(({items}) =>
           <SortableItem
             key={index}
             index={index}
-            item={value}
+            {...value}
           />
         ))}
     </div>
@@ -32,7 +31,8 @@ const SortablePart = SortableElement(props =>
             items={props.item.items}
             dragLayer={dragLayer}
             distance={3}
-            helperClass={style.selected}
+            helperClass={style.dragged}
+            selectedClass={style.selected}
             isMultiple={true}
             helperCollision={{top:0, bottom:0}}
         />
@@ -40,24 +40,25 @@ const SortablePart = SortableElement(props =>
 );
 
 const SortableListParts = SortableContainer(({items, onSortItemsEnd}) =>
-    <div style={{height: '600px', overflow: 'auto'}}>
+    <div style={{height: '300px', overflow: 'auto', userSelect:'none'}}>
         {items.map((value, index) => (
             <SortablePart
                 key={index}
                 index={index}
                 item={value}
                 id={index}
-                onMultipleSortEnd={onSortItemsEnd}/>
+                onMultipleSortEnd={onSortItemsEnd}
+            />
         ))}
     </div>
 );
 
 const getParts = (countParts, countLessons)=> {
   const parts = [];
-  for (let i=0; i<countParts; i++){
+  for (let i = 0; i < countParts; i++){
     const lessons = [];
-    for (let j=0;j<countLessons;j++){
-      lessons.push('Lesson-'+(i+1)+'-'+(j+1));
+    for (let j = 0; j < countLessons; j++){
+      lessons.push('Lesson-' + (i + 1) + '-' + (j + 1));
     }
     parts.push({
       name: 'Part',
@@ -82,10 +83,10 @@ export default class SortableComponent extends Component {
   onSortItemsEnd = ({newListIndex, newIndex, items}) => {
     const parts = this.state.parts.slice();
     const itemsValue = [];
-    items.forEach(item=>{
+    items.forEach(item => {
       itemsValue.push(parts[item.listId].items[item.id]);
     });
-    for (let i=items.length-1;i>=0;i--){
+    for (let i=items.length - 1; i >= 0; i--) {
       const item = items[i];
       parts[item.listId].items.splice(item.id,1);
     }
@@ -95,10 +96,10 @@ export default class SortableComponent extends Component {
     });
   }
   render() {
-    const parts = this.state.parts.map((value, index)=>{
+    const parts = this.state.parts.map((value, index) => {
       return {
         name: value.name,
-        items: value.items.map((value, ind)=>{
+        items: value.items.map((value, ind) => {
           return {
             value,
             ind:(index+1)+'.'+(ind+1),
@@ -111,7 +112,9 @@ export default class SortableComponent extends Component {
             items={parts}
             onSortEnd={this.onSortEnd}
             onSortItemsEnd={this.onSortItemsEnd}
-            helperClass={style.selected}/>
+            helperClass={style.dragged}
+            distance={3}
+        />
     </div>;
   }
 }
