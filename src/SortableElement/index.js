@@ -1,12 +1,12 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {findDOMNode} from 'react-dom';
+import { findDOMNode } from 'react-dom';
 import invariant from 'invariant';
-import {removeItem} from './utils';
+import { removeItem } from './utils';
 
-import {provideDisplayName, omit} from '../utils';
+import { provideDisplayName, omit } from '../utils';
 // Export Higher Order Sortable Element Component
-export default function sortableElement(WrappedComponent, config = {withRef: false}) {
+export default function sortableElement(WrappedComponent, config = { withRef: false }) {
   return class extends Component {
     state = {
       selected: false,
@@ -30,7 +30,7 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
     componentDidMount() {
       this.helperClass = this.context.manager.helperClass;
       this.selectedClass = this.context.manager.selectedClass;
-      const {collection, disabled, index} = this.props;
+      const { collection, disabled, index } = this.props;
 
       if (!disabled) {
         this.setDraggable(collection, index);
@@ -42,7 +42,7 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
         this.node.sortableInfo.index = nextProps.index;
       }
       if (this.props.disabled !== nextProps.disabled) {
-        const {collection, disabled, index} = nextProps;
+        const { collection, disabled, index } = nextProps;
         if (disabled) {
           this.removeDraggable(collection);
         } else {
@@ -55,7 +55,7 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
     }
 
     componentWillUnmount() {
-      const {collection, disabled} = this.props;
+      const { collection, disabled } = this.props;
       this.removeSelectedFromDraglayer();
       if (!disabled) this.removeDraggable(collection);
     }
@@ -69,7 +69,7 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
         manager: this.context.manager,
       };
 
-      this.ref = {node};
+      this.ref = { node };
       this.context.manager.add(collection, this.ref);
     }
 
@@ -105,24 +105,24 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
       });
     }
 
-    unselect(){
+    unselect() {
       this.setState({
         selected: false,
       });
     }
 
-    removeSelectedFromDraglayer(){
+    removeSelectedFromDraglayer() {
       removeItem(this.context.manager.dragLayer.selectedItems, this);
     }
 
-    removeSelectedFromManager(){
+    removeSelectedFromManager() {
       removeItem(this.context.manager.selected, this.node.sortableInfo);
     }
 
     render() {
       const ref = config.withRef ? 'wrappedInstance' : null;
-      const props = {...omit(this.props, 'collection', 'disabled', 'index')};
-      const {selectedItems} = this.props;
+      const props = { ...omit(this.props, 'collection', 'disabled', 'index') };
+      const { selectedItems } = this.props;
       if (selectedItems) {
         return (
           <div>
@@ -131,11 +131,11 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
                 key={index}
                 className={this.helperClass}
               >
-                  <WrappedComponent
-                    key={index}
-                    {...value}
-                    {...props}
-                  />
+                <WrappedComponent
+                  key={index}
+                  {...value}
+                  {...props}
+                />
               </div>
             )}
           </div>
@@ -143,8 +143,8 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
       }
       const component = (
         <WrappedComponent
-            ref={ref}
-            {...props}
+          ref={ref}
+          {...props}
         />
       );
       if (this.context.manager.isMultiple) {
@@ -153,7 +153,7 @@ export default function sortableElement(WrappedComponent, config = {withRef: fal
             onClick={this.onSelect}
             className={this.state.selected ? this.selectedClass : ''}
           >
-              {component}
+            {component}
           </div>
         );
       }
