@@ -6,6 +6,8 @@ export default class Manager {
 
   selected = [];
 
+  alwaysSelected = [];
+
   add(collection, ref) {
     if (!this.refs[collection]) {
       this.refs[collection] = [];
@@ -33,7 +35,7 @@ export default class Manager {
     return find(
       activeRef,
       // eslint-disable-next-line eqeqeq
-      ({node}) => node.sortableInfo.index == this.active.index
+      ({ node }) => node.sortableInfo.index == this.active.index
     ) || activeRef.slice(-1).pop();
   }
 
@@ -42,6 +44,6 @@ export default class Manager {
   }
 
   getOrderedRefs(collection = this.active.collection) {
-    return sortBy(this.refs[collection], ({node}) => node.sortableInfo.index);
+    return sortBy(this.refs[collection], ({ node }) => node.sortableInfo.index);
   }
 }

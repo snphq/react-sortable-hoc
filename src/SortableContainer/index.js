@@ -350,47 +350,39 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
     };
 
     startMultipleDrag(activeNode) {
-      this.dragLayer.unselectAll();
       this.index = activeNode.node.sortableInfo.index;
       const selectedItems = [];
       this.dragLayer.dragableItems = [];
       this.dragLayer.deltaY = 0;
       if (this.manager.selected.indexOf(this.index) === -1) {
-        this.dragLayer.removeAllSelectedFromManagers();
-        const item = this.state.items[this.index];
-        selectedItems.push(item);
-        this.dragLayer.dragableItems[0] = {
-          listId: this.props.id,
-          id: this.index,
-          item,
-        };
-      } else {
-        this.index = this.getNewIndex(this.index);
-        this.manager.active.index = this.index;
-        this.dragLayer.lists.forEach(list => {
-          const items = [];
-          for (let i = 0; i < list.props.items.length; i++) {
-            if (list.manager.selected.indexOf(i) !== -1) {
-              const item = list.props.items[i];
-              selectedItems.push(item);
-              this.dragLayer.dragableItems.push({
-                listId: list.props.id,
-                id: i,
-                item,
-              });
-            } else {
-              items.push(list.props.items[i]);
-            }
-            if (list === this && i === this.index) {
-              items.push(list.props.items[i]);
-            }
-          }
-          list.setState({
-            items: items,
-          });
-          list.manager.selected = [];
-        });
+        this.manager.selected.push(this.index);
       }
+      this.index = this.getNewIndex(this.index);
+      this.manager.active.index = this.index;
+      this.dragLayer.lists.forEach(list => {
+        const items = [];
+        const selected = list.manager.selected.concat(list.manager.alwaysSelected);
+        for (let i = 0; i < list.props.items.length; i++) {
+          const item = list.props.items[i];
+          if (selected.indexOf(i) !== -1) {
+            selectedItems.push(item);
+            this.dragLayer.dragableItems.push({
+              listId: list.props.id,
+              id: i,
+              item,
+            });
+          } else {
+            items.push(item);
+          }
+          if (list === this && i === this.index) {
+            items.push(item);
+          }
+        }
+        list.setState({
+          items: items,
+        });
+        list.manager.selected = [];
+      });
       const items = this.state.items.slice();
       items[this.index] = {
         selectedItems,
@@ -967,7 +959,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           'lockToContainerEdges',
           'getContainer',
           'getHelperDimensions',
-        )
+        ),
       };
       props.items = this.state.items;
       return (
