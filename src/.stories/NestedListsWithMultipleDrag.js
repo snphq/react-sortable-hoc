@@ -5,19 +5,20 @@ import style from './NestedListsWithMultipleDrag.scss';
 const dragLayer = new DragLayer();
 
 const SortableItem = SortableElement(props =>
-  <div>
+  <div onClick={props.onChangeActiveItem.bind(this, props.value)}>
     <span style={{ display: 'inline-block', width: '50px' }}>{props.ind}</span>
     {props.value}
   </div>
 );
 
-const SortableListItems = SortableContainer(({ items }) =>
+const SortableListItems = SortableContainer(({ items, activeItem, onChangeActiveItem }) =>
   <div>
     {items.map((value, index) => (
       <SortableItem
         key={index}
         index={index}
-        isAlwaysSelected={value.value === 'Lesson-1-2'}
+        isAlwaysSelected={value.value === activeItem}
+        onChangeActiveItem={onChangeActiveItem}
         {...value}
       />
     ))}
@@ -40,7 +41,7 @@ const SortablePart = SortableElement(props =>
   </div>
 );
 
-const SortableListParts = SortableContainer(({ items, onSortItemsEnd }) =>
+const SortableListParts = SortableContainer(({ items, onSortItemsEnd, activeItem, onChangeActiveItem }) =>
   <div style={{ height: '300px', overflow: 'auto', userSelect: 'none' }}>
     {items.map((value, index) => (
       <SortablePart
@@ -49,6 +50,8 @@ const SortableListParts = SortableContainer(({ items, onSortItemsEnd }) =>
         item={value}
         id={index}
         onMultipleSortEnd={onSortItemsEnd}
+        activeItem={activeItem}
+        onChangeActiveItem={onChangeActiveItem}
       />
     ))}
   </div>
@@ -73,7 +76,8 @@ export default class SortableComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      parts:getParts(20, 5),
+      parts: getParts(20, 5),
+      activeItem: 'Lesson-1-2',
     };
   }
   onSortEnd = ({ oldIndex, newIndex }) => {
@@ -96,6 +100,14 @@ export default class SortableComponent extends Component {
       parts: parts,
     });
   }
+  onChangeActiveItem = (value, e) => {
+    if (e.metaKey || e.ctrlKey) {
+      return;
+    }
+    this.setState({
+      activeItem: value,
+    });
+  }
   render() {
     const parts = this.state.parts.map((value, index) => {
       return {
@@ -115,6 +127,8 @@ export default class SortableComponent extends Component {
         onSortItemsEnd={this.onSortItemsEnd}
         helperClass={style.dragged}
         distance={3}
+        activeItem={this.state.activeItem}
+        onChangeActiveItem={this.onChangeActiveItem}
       />
     </div>;
   }

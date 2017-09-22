@@ -152,6 +152,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           );
         }
       }
+      this.dragLayer.containersRefs.push(this.containerRef);
     }
 
     componentWillUnmount() {
@@ -162,6 +163,11 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
             this.container.removeEventListener(eventName, this.events[key])
           );
         }
+      }
+      const { containersRefs } = this.dragLayer;
+      const i = containersRefs.indexOf(this.containerRef);
+      if (i !== -1) {
+        containersRefs.splice(i, 1);
       }
     }
 
@@ -933,6 +939,10 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       return this.refs.wrappedInstance;
     }
 
+    rootRef = (div) => {
+      this.containerRef = div;
+    }
+
     render() {
       const ref = config.withRef ? 'wrappedInstance' : null;
 
@@ -963,10 +973,12 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       };
       props.items = this.state.items;
       return (
-        <WrappedComponent
-          ref={ref}
-          {...props}
-        />
+        <div ref={this.rootRef}>
+          <WrappedComponent
+            ref={ref}
+            {...props}
+          />
+        </div>
       );
     }
   };
