@@ -13,6 +13,24 @@ export default class DragLayer {
   selectedItems = [];
   oldY = 0;
   deltaY = 0;
+  containersRefs = [];
+
+  constructor() {
+    document.addEventListener('click', this.handleClick, false);
+  }
+
+  handleClick = ({ target }) => {
+    if (this.selectedItems.length === 0 || this.containersRefs.length === 0) {
+      return;
+    }
+    for (let i = 0, iMax = this.containersRefs.length; i < iMax; i++) {
+      if (this.containersRefs[i].contains(target)) {
+        return;
+      }
+    }
+    this.unselectAll();
+    this.removeAllSelectedFromManagers();
+  }
 
   unselectAll() {
     this.selectedItems.forEach(item => item.unselect());

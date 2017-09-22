@@ -1,63 +1,67 @@
-import React, {Component} from 'react';
-import {SortableContainer, SortableElement, arrayMove, DragLayer} from '../index';
+import React, { Component } from 'react';
+import { SortableContainer, SortableElement, arrayMove, DragLayer } from '../index';
 import style from './NestedListsWithMultipleDrag.scss';
 
 const dragLayer = new DragLayer();
 
 const SortableItem = SortableElement(props =>
-  <div>
-    <span style={{display: 'inline-block', width: '50px'}}>{props.ind}</span>
+  <div onClick={props.onChangeActiveItem.bind(this, props.value)}>
+    <span style={{ display: 'inline-block', width: '50px' }}>{props.ind}</span>
     {props.value}
   </div>
 );
 
-const SortableListItems = SortableContainer(({items}) =>
-    <div>
-        {items.map((value, index) => (
-          <SortableItem
-            key={index}
-            index={index}
-            {...value}
-          />
-        ))}
-    </div>
+const SortableListItems = SortableContainer(({ items, activeItem, onChangeActiveItem }) =>
+  <div>
+    {items.map((value, index) => (
+      <SortableItem
+        key={index}
+        index={index}
+        isAlwaysSelected={value.value === activeItem}
+        onChangeActiveItem={onChangeActiveItem}
+        {...value}
+      />
+    ))}
+  </div>
 );
 
 const SortablePart = SortableElement(props =>
-    <div>
-        <div><span style={{marginLeft: '50px'}}>{props.item.name}</span></div>
-        <SortableListItems
-            {...props}
-            items={props.item.items}
-            dragLayer={dragLayer}
-            distance={3}
-            helperClass={style.dragged}
-            selectedClass={style.selected}
-            isMultiple={true}
-            helperCollision={{top:0, bottom:0}}
-        />
-    </div>
+  <div>
+    <div><span style={{ marginLeft: '50px' }}>{props.item.name}</span></div>
+    <SortableListItems
+      {...props}
+      items={props.item.items}
+      dragLayer={dragLayer}
+      distance={3}
+      helperClass={style.dragged}
+      selectedClass={style.selected}
+      isMultiple={true}
+      helperCollision={{ top: 0, bottom: 0 }}
+    />
+  </div>
 );
 
-const SortableListParts = SortableContainer(({items, onSortItemsEnd}) =>
-    <div style={{height: '300px', overflow: 'auto', userSelect:'none'}}>
-        {items.map((value, index) => (
-            <SortablePart
-                key={index}
-                index={index}
-                item={value}
-                id={index}
-                onMultipleSortEnd={onSortItemsEnd}
-            />
-        ))}
-    </div>
+const SortableListParts = SortableContainer(({ items, onSortItemsEnd, activeItem, onChangeActiveItem }) =>
+  <div style={{ height: '300px', overflow: 'auto', userSelect: 'none' }}>
+    {items.map((value, index) => (
+      <SortablePart
+        key={index}
+        index={index}
+        item={value}
+        id={index}
+        onMultipleSortEnd={onSortItemsEnd}
+        activeItem={activeItem}
+        onChangeActiveItem={onChangeActiveItem}
+      />
+    ))}
+  </div>
 );
 
-const getParts = (countParts, countLessons)=> {
+const getParts = (countParts, countLessons) => {
   const parts = [];
-  for (let i = 0; i < countParts; i++){
+  for (let i = 0; i < countParts; i++) {
     const lessons = [];
-    for (let j = 0; j < countLessons; j++){
+    for (let j = 0; j < countLessons; j++) {
       lessons.push('Lesson-' + (i + 1) + '-' + (j + 1));
     }
     parts.push({
@@ -72,27 +76,36 @@ export default class SortableComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      parts:getParts(20, 5),
+      parts: getParts(20, 5),
+      activeItem: 'Lesson-1-2',
     };
   }
-  onSortEnd = ({oldIndex, newIndex}) => {
+  onSortEnd = ({ oldIndex, newIndex }) => {
     this.setState({
       parts: arrayMove(this.state.parts, oldIndex, newIndex),
     });
   }
-  onSortItemsEnd = ({newListIndex, newIndex, items}) => {
+  onSortItemsEnd = ({ newListIndex, newIndex, items }) => {
     const parts = this.state.parts.slice();
     const itemsValue = [];
     items.forEach(item => {
       itemsValue.push(parts[item.listId].items[item.id]);
     });
-    for (let i=items.length - 1; i >= 0; i--) {
+    for (let i = items.length - 1; i >= 0; i--) {
       const item = items[i];
-      parts[item.listId].items.splice(item.id,1);
+      parts[item.listId].items.splice(item.id, 1);
     }
     parts[newListIndex].items.splice(newIndex, 0, ...itemsValue);
     this.setState({
       parts: parts,
+    });
+  }
+  onChangeActiveItem = (value, e) => {
+    if (e.metaKey || e.ctrlKey) {
+      return;
+    }
+    this.setState({
+      activeItem: value,
     });
   }
   render() {
@@ -102,19 +115,21 @@ export default class SortableComponent extends Component {
         items: value.items.map((value, ind) => {
           return {
             value,
-            ind:(index+1)+'.'+(ind+1),
+            ind: (index + 1) + '.' + (ind + 1),
           };
         }),
       };
     });
     return <div>
-        <SortableListParts
-            items={parts}
-            onSortEnd={this.onSortEnd}
-            onSortItemsEnd={this.onSortItemsEnd}
-            helperClass={style.dragged}
-            distance={3}
-        />
+      <SortableListParts
+        items={parts}
+        onSortEnd={this.onSortEnd}
+        onSortItemsEnd={this.onSortItemsEnd}
+        helperClass={style.dragged}
+        distance={3}
+        activeItem={this.state.activeItem}
+        onChangeActiveItem={this.onChangeActiveItem}
+      />
     </div>;
   }
 }

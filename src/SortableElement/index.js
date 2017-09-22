@@ -28,10 +28,10 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
     };
 
     componentDidMount() {
-      this.helperClass = this.context.manager.helperClass;
-      this.selectedClass = this.context.manager.selectedClass;
-      const { collection, disabled, index } = this.props;
-
+      const { collection, disabled, index, isAlwaysSelected } = this.props;
+      if (isAlwaysSelected) {
+        this.context.manager.alwaysSelected.push(index);
+      }
       if (!disabled) {
         this.setDraggable(collection, index);
       }
@@ -52,10 +52,25 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
         this.removeDraggable(this.props.collection);
         this.setDraggable(nextProps.collection, nextProps.index);
       }
+      this.setState({
+        selected: nextProps.isAlwaysSelected,
+      });
+      if (this.props.isAlwaysSelected !== nextProps.isAlwaysSelected) {
+        const { isAlwaysSelected, index } = nextProps;
+        const { alwaysSelected } = this.context.manager;
+        if (isAlwaysSelected) {
+          alwaysSelected.push(index);
+        } else {
+          removeItem(alwaysSelected, index);
+        }
+      }
     }
 
     componentWillUnmount() {
-      const { collection, disabled } = this.props;
+      const { collection, disabled, isAlwaysSelected, index } = this.props;
+      if (isAlwaysSelected) {
+        removeItem(this.context.manager.alwaysSelected, index);
+      }
       this.removeSelectedFromDraglayer();
       if (!disabled) this.removeDraggable(collection);
     }
@@ -93,6 +108,9 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
         dragLayer.unselectAll();
         dragLayer.removeAllSelectedFromManagers();
       }
+      if (this.props.isAlwaysSelected) {
+        return;
+      }
       if (!this.state.selected) {
         manager.selected.push(this.node.sortableInfo.index);
         selectedItemsOnDragLayer.push(this);
@@ -120,6 +138,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
     }
 
     render() {
+      const { helperClass, selectedClass, isMultiple } = this.context.manager;
       const ref = config.withRef ? 'wrappedInstance' : null;
       const props = { ...omit(this.props, 'collection', 'disabled', 'index') };
       const { selectedItems } = this.props;
@@ -129,7 +148,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
             {selectedItems.map((value, index) =>
               <div
                 key={index}
-                className={this.helperClass}
+                className={helperClass}
               >
                 <WrappedComponent
                   key={index}
@@ -147,11 +166,11 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
           {...props}
         />
       );
-      if (this.context.manager.isMultiple) {
+      if (isMultiple) {
         return (
           <div
             onClick={this.onSelect}
-            className={this.state.selected ? this.selectedClass : ''}
+            className={this.state.selected ? selectedClass : ''}
           >
             {component}
           </div>
