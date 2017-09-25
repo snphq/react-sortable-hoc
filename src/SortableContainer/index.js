@@ -363,11 +363,14 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       if (this.manager.selected.indexOf(this.index) === -1) {
         this.manager.selected.push(this.index);
       }
+      this.dragLayer.lists.forEach(list => {
+        list.manager.selected = list.manager.selected.concat(list.manager.alwaysSelected);
+      });
       this.index = this.getNewIndex(this.index);
       this.manager.active.index = this.index;
       this.dragLayer.lists.forEach(list => {
         const items = [];
-        const selected = list.manager.selected.concat(list.manager.alwaysSelected);
+        const selected = list.manager.selected;
         for (let i = 0; i < list.props.items.length; i++) {
           const item = list.props.items[i];
           if (selected.indexOf(i) !== -1) {
@@ -377,10 +380,10 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
               id: i,
               item,
             });
+            if (list === this && i === this.index) {
+              items.push(item);
+            }
           } else {
-            items.push(item);
-          }
-          if (list === this && i === this.index) {
             items.push(item);
           }
         }
