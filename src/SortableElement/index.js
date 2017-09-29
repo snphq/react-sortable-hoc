@@ -64,7 +64,9 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
           removeItem(alwaysSelected, index);
         }
       }
-      this.node.sortableInfo.isDisabled = nextProps.disabled;
+      if (this.node){
+        this.node.sortableInfo.isDisabled = nextProps.disabled;
+      }
     }
 
     componentWillUnmount() {
@@ -146,7 +148,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
       const { helperClass, selectedClass, isMultiple } = this.context.manager;
       const ref = config.withRef ? 'wrappedInstance' : null;
       const props = { ...omit(this.props, 'collection', 'disabled', 'index') };
-      const { selectedItems, disabled } = this.props;
+      const { selectedItems } = this.props;
       if (selectedItems) {
         return (
           <div>
