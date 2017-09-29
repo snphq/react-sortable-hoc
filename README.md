@@ -21,26 +21,26 @@ Features
 Installation
 ------------
 
-Using [npm](https://www.npmjs.com/package/react-sortable-hoc):
+Using [npm](https://www.npmjs.com/package/snphq-react-sortable-hoc):
 
-	$ npm install react-sortable-hoc --save
+	$ npm install snphq-react-sortable-hoc --save
 
 
 Then, using a module bundler that supports either CommonJS or ES2015 modules, such as [webpack](https://github.com/webpack/webpack):
 
 ```js
 // Using an ES6 transpiler like Babel
-import {SortableContainer, SortableElement} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement} from 'snphq-react-sortable-hoc';
 
 // Not using an ES6 transpiler
-var Sortable = require('react-sortable-hoc');
+var Sortable = require('snphq-react-sortable-hoc');
 var SortableContainer = Sortable.SortableContainer;
 var SortableElement = Sortable.SortableElement;
 ```
 
 Alternatively, an UMD build is also available:
 ```html
-<script src="react-sortable-hoc/dist/umd/react-sortable-hoc.js"></script>
+<script src="snphq-react-sortable-hoc/dist/umd/react-sortable-hoc.js"></script>
 ```
 
 Usage
@@ -50,7 +50,7 @@ Usage
 ```js
 import React, {Component} from 'react';
 import {render} from 'react-dom';
-import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement, arrayMove} from 'snphq-react-sortable-hoc';
 
 const SortableItem = SortableElement(({value}) =>
   <li>{value}</li>
