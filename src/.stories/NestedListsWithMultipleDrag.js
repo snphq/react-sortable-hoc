@@ -11,7 +11,7 @@ const SortableItem = SortableElement(props =>
   </div>
 );
 
-const SortableListItems = SortableContainer(({ items, activeItem, onChangeActiveItem }) =>
+const SortableListItems = SortableContainer(({ items, activeItem, onChangeActiveItem, isDisabled }) =>
   <div>
     {items.map((value, index) => (
       <SortableItem
@@ -19,6 +19,7 @@ const SortableListItems = SortableContainer(({ items, activeItem, onChangeActive
         index={index}
         isAlwaysSelected={value.value === activeItem}
         onChangeActiveItem={onChangeActiveItem}
+        disabled={isDisabled}
         {...value}
       />
     ))}
@@ -41,7 +42,7 @@ const SortablePart = SortableElement(props =>
   </div>
 );
 
-const SortableListParts = SortableContainer(({ items, onSortItemsEnd, activeItem, onChangeActiveItem }) =>
+const SortableListParts = SortableContainer(({ items, onSortItemsEnd, activeItem, onChangeActiveItem, isDisabled }) =>
   <div style={{ height: '300px', overflow: 'auto', userSelect: 'none' }}>
     {items.map((value, index) => (
       <SortablePart
@@ -52,6 +53,8 @@ const SortableListParts = SortableContainer(({ items, onSortItemsEnd, activeItem
         onMultipleSortEnd={onSortItemsEnd}
         activeItem={activeItem}
         onChangeActiveItem={onChangeActiveItem}
+        isDisabled={isDisabled}
+        disabled={isDisabled}
       />
     ))}
   </div>
@@ -78,6 +81,7 @@ export default class SortableComponent extends Component {
     this.state = {
       parts: getParts(20, 5),
       activeItem: 'Lesson-1-2',
+      isDisabled: false,
     };
   }
   onSortEnd = ({ oldIndex, newIndex }) => {
@@ -88,17 +92,13 @@ export default class SortableComponent extends Component {
   onSortItemsEnd = ({ newListIndex, newIndex, items }) => {
     const parts = this.state.parts.slice();
     const itemsValue = [];
-    items.forEach(item => {
-      itemsValue.push(parts[item.listId].items[item.id]);
-    });
     for (let i = items.length - 1; i >= 0; i--) {
       const item = items[i];
-      parts[item.listId].items.splice(item.id, 1);
+      itemsValue[i] = item.item.value;
+      parts[item.listId].items.splice(item.index, 1);
     }
     parts[newListIndex].items.splice(newIndex, 0, ...itemsValue);
-    this.setState({
-      parts: parts,
-    });
+    this.setState({ parts });
   }
   onChangeActiveItem = (value, e) => {
     if (e.metaKey || e.ctrlKey) {
@@ -108,7 +108,13 @@ export default class SortableComponent extends Component {
       activeItem: value,
     });
   }
+  onChangeDisable = () => {
+    this.setState({
+      isDisabled: !this.state.isDisabled,
+    });
+  }
   render() {
+    const { isDisabled, activeItem } = this.state;
     const parts = this.state.parts.map((value, index) => {
       return {
         name: value.name,
@@ -121,14 +127,20 @@ export default class SortableComponent extends Component {
       };
     });
     return <div>
+      <input
+        type="checkbox"
+        checked={isDisabled}
+        onChange={this.onChangeDisable} />
+      isDisabled
       <SortableListParts
         items={parts}
         onSortEnd={this.onSortEnd}
         onSortItemsEnd={this.onSortItemsEnd}
         helperClass={style.dragged}
         distance={3}
-        activeItem={this.state.activeItem}
+        activeItem={activeItem}
         onChangeActiveItem={this.onChangeActiveItem}
+        isDisabled={isDisabled}
       />
     </div>;
   }

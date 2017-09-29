@@ -200,6 +200,10 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       if (isDrag) {
         return;
       }
+      const node = closest(e.target, el => el.sortableInfo != null);
+      if (node.sortableInfo.isDisabled){
+        return;
+      }
       isDrag = true;
       const p = getOffset(e);
       const { distance, shouldCancelStart } = this.props;
@@ -211,8 +215,6 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
       this._touched = true;
       this._pos = p;
-
-      const node = closest(e.target, el => el.sortableInfo != null);
 
       if (
         node &&
@@ -377,7 +379,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
             selectedItems.push(item);
             this.dragLayer.dragableItems.push({
               listId: list.props.id,
-              id: i,
+              index: i,
               item,
             });
             if (list === this && i === this.index) {
