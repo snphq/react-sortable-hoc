@@ -64,6 +64,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
           removeItem(alwaysSelected, index);
         }
       }
+      this.node.sortableInfo.isDisabled = nextProps.disabled;
     }
 
     componentWillUnmount() {
@@ -82,6 +83,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
         index,
         collection,
         manager: this.context.manager,
+        isDisabled: this.props.disabled,
       };
 
       this.ref = { node };
@@ -101,6 +103,9 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
     }
 
     onSelect = (e) => {
+      if (this.props.isDisabled){
+        return;
+      }
       const manager = this.context.manager;
       const dragLayer = manager.dragLayer;
       const selectedItemsOnDragLayer = dragLayer.selectedItems;
@@ -141,7 +146,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
       const { helperClass, selectedClass, isMultiple } = this.context.manager;
       const ref = config.withRef ? 'wrappedInstance' : null;
       const props = { ...omit(this.props, 'collection', 'disabled', 'index') };
-      const { selectedItems } = this.props;
+      const { selectedItems, disabled } = this.props;
       if (selectedItems) {
         return (
           <div>
