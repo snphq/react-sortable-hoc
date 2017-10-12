@@ -201,7 +201,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         return;
       }
       const node = closest(e.target, el => el.sortableInfo != null);
-      if (node.sortableInfo.isDisabled){
+      if (!node || node.sortableInfo.isDisabled) {
         return;
       }
       isDrag = true;

@@ -105,7 +105,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
     }
 
     onSelect = (e) => {
-      if (this.props.disabled){
+      if (this.props.disabled) {
         return;
       }
       const manager = this.context.manager;
