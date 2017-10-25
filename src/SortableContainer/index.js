@@ -954,6 +954,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       const props = {
         ...omit(
           this.props,
+          'className',
           'contentWindow',
           'useWindowAsScrollContainer',
           'distance',
@@ -978,7 +979,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       };
       props.items = this.state.items;
       return (
-        <div ref={this.rootRef}>
+        <div ref={this.rootRef} className={this.props.className}>
           <WrappedComponent
             ref={ref}
             {...props}
