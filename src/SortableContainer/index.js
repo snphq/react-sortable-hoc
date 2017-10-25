@@ -977,7 +977,6 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           'getHelperDimensions',
         ),
       };
-
       props.items = this.state.items;
       return (
         <div ref={this.rootRef} className={this.props.className}>
